@@ -1,0 +1,32 @@
+{
+  "name": "your-company-name-deep-links",
+  "description": "Deep linking in Adalo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "ISC",
+  "author": "Steven McKeown",
+  "scripts": {
+    "start": "adalo dev",
+    "login": "adalo login",
+    "publish": "adalo publish"
+  },
+  "adalo": {
+    "logo": "./logo.png",
+    "displayName": "Pragmaflow Deep Links",
+    "components": [
+      {
+        "name": "DeepLink",
+        "manifest": "./src/components/DeepLink/manifest.json"
+      }
+    ],
+    "iosInstallScript": "./scripts/install_ios.sh",
+    "androidInstallScript": "./scripts/install_android.sh"
+  },
+  "devDependencies": {
+    "@adalo/cli": "^0.0.42",
+    "react": "^16.9.0",
+    "react-art": "^16.6.0",
+    "react-dom": "^16.9.0",
+    "react-native-web": "^0.9.5"
+  }
+}
