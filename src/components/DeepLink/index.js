@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { AppState, View, Text, StyleSheet, Linking } from 'react-native'
 
 const DeepLink = (props) => {
   const incomingUrlLink = useRef('')
