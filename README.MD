@@ -4,6 +4,10 @@ This component allows linking custom uri schemes, page identifiers, and extra da
 
 It is called deep-ish linking because it is not a true deep link from the root navigator but a round-about way to simulate true deep linking.
 
+## Breaking changes
+
+We just released V2, this readme is out of date. You no longer should download and install the component yourself but head to https://adalo.pragmaflowservers.com/install-component and install it from there.
+
 ## Motivation
 
 The motivation behind this component was to allow developers and administrators to send out links to their end users which will take them directly into a specific area of an app developed on Adalo.
