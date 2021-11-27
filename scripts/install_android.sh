@@ -25,7 +25,7 @@ urlHostname=$("${dir}/get_uri_data.js" urlHostname)
 # AndroidManifest.xml
 TARGET_FILEPATH=android/app/src/main/AndroidManifest.xml
 
-SEARCH_PATTERN='.MainActivity'
+SEARCH_PATTERN='android:windowSoftInputMode="adjustResize">'
 LINE_NUMBER=$(grep -n "$SEARCH_PATTERN" "$TARGET_FILEPATH" | cut -d ':' -f 1)
 
 LINES_TO_ADD=("            <intent-filter>"
@@ -45,5 +45,7 @@ do
   vsed "s/$LINE_TO_APPEND_AFTER/&"$'\\\n'"${LINES_TO_ADD[$INDEX]}/" $TARGET_FILEPATH
   INDEX=$(($INDEX-1))
 done
+
+cat android/app/src/main/AndroidManifest.xml 
 
 echo "configured android"

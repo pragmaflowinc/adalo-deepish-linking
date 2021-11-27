@@ -42,6 +42,13 @@ class DeepLinking extends Component {
     ...actionContextTypes,
   }
 
+  constructor(props) {
+    super(props)
+
+    this._handleOpenURL = this._handleOpenURL.bind(this);
+    this.findLink = this.findLink.bind(this);
+  }
+
   _handleOpenURL(event) {
     if (this.props.topScreen) {
       this.findLink(event.url)
