@@ -4,8 +4,6 @@ import { AppState, View, Text, StyleSheet, Linking, Button } from 'react-native'
 import { actionContextTypes } from '@protonapp/proton-runner/lib/utils/actions'
 import { connect } from 'react-redux'
 
-const TEST_URL = "https://adalo.com/organizations/1/locations/1"
-
 const DeepLinker = (props) => {
   if (props.editor) {
     return <DeepLinking {...props} />
@@ -15,7 +13,8 @@ const DeepLinker = (props) => {
 }
 
 function recusiveLinkSearch(parts, depth, links, params) {
-  const part = parts.shift()
+  const shallowCopyParts = [...parts]
+  const part = shallowCopyParts.shift()
   let newParams = {...params}
   const matches = links.filter(link => {
     if (!link.pieces[depth]) { return; }
@@ -31,10 +30,14 @@ function recusiveLinkSearch(parts, depth, links, params) {
   })
   if (matches.length === 0) {
     return null
-  } else if (parts.length > 0) {
-    return recusiveLinkSearch(parts, depth + 1, matches, newParams)
+  } else if (shallowCopyParts.length > 0) {
+    return recusiveLinkSearch(shallowCopyParts, depth + 1, matches, newParams)
   }
-  return [matches[0], newParams]
+  const exactMatch = matches.find(match => match.pieces.length === parts.length)
+  if (exactMatch) {
+    return [exactMatch, newParams]
+  }
+  return null
 }
 
 class DeepLinking extends Component {
@@ -75,7 +78,6 @@ class DeepLinking extends Component {
         params
       }))  
     })
-    // "https://adalo.com/organizations/1/locations/1"
     const path = url.replace(`${this.props.uriScheme}://${this.props.urlHostname}/`, '')
     const pathPieces = path.split('/')
     const [link, params] = recusiveLinkSearch(pathPieces, 0, deeplinks, {})
