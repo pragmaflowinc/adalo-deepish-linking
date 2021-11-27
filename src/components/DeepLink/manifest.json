@@ -6,40 +6,24 @@
   "icon": "./logo.png",
   "props": [
     {
-      "name": "color",
-      "displayName": "Color",
-      "type": "color",
-      "default": "#00A898"
+      "name": "uriScheme",
+      "displayName": "What URI scheme do you want to use?",
+      "type": "text",
+      "global": true,
+      "default": "https"
     },
     {
-      "name": "onInitialUrl",
-      "displayName": "Trigger on the initail URL",
-      "type": "action",
-      "arguments": [
-        {
-          "type": "text",
-          "displayName": "The URL"
-        },
-        {
-          "type": "text",
-          "displayName": "Extra"
-        }
-      ]
+      "name": "urlHostname",
+      "displayName": "What hostname do you want to use?",
+      "type": "text",
+      "global": true,
+      "default": "adalo.com"
     },
     {
-      "name": "onEventUrl",
-      "displayName": "Trigger on the event URL",
-      "type": "action",
-      "arguments": [
-        {
-          "type": "text",
-          "displayName": "The URL"
-        },
-        {
-          "type": "text",
-          "displayName": "Extra"
-        }
-      ]
+      "name": "urlPath",
+      "displayName": "what is the URL path?",
+      "type": "text",
+      "default": "home"
     }
   ]
 }

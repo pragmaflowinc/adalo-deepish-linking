@@ -1,16 +1,147 @@
-import React, { useRef, useState, useEffect } from "react";
-import { AppState, View, Text, StyleSheet, Linking } from 'react-native'
+import React, { useRef, useState, useEffect, Component, useContext } from "react";
+import PropTypes from 'prop-types'
+import { AppState, View, Text, StyleSheet, Linking, Button } from 'react-native'
+import { actionContextTypes } from '@protonapp/proton-runner/lib/utils/actions'
+import { connect } from 'react-redux'
+
+const TEST_URL = "https://adalo.com/organizations/1/locations/1"
+
+const DeepLinker = (props) => {
+  if (props.editor) {
+    return <DeepLinking {...props} />
+  } else {
+    return <ConnectedDeepLinking {...props} />
+  }
+}
+
+function recusiveLinkSearch(parts, depth, links, params) {
+  const part = parts.shift()
+  let newParams = {...params}
+  const matches = links.filter(link => {
+    if (!link.pieces[depth]) { return; }
+    const isMatch = link.pieces[depth] === part || (link.pieces[depth].startsWith('{') && !isNaN(part))
+    Object.keys(link.params).forEach(key => link.params[key] = +part)
+    if (isMatch && link.pieces.length === depth + 1) {
+      newParams = {
+        ...newParams,
+        ...link.params
+      }
+    }
+    return isMatch
+  })
+  if (matches.length === 0) {
+    return null
+  } else if (parts.length > 0) {
+    return recusiveLinkSearch(parts, depth + 1, matches, newParams)
+  }
+  return [matches[0], newParams]
+}
+
+class DeepLinking extends Component {
+  static contextTypes = {
+    ...actionContextTypes,
+  }
+
+  constructor(props) {
+    super(props)
+
+    this._handleOpenURL = this._handleOpenURL.bind(this);
+    this.findLink = this.findLink.bind(this);
+  }
+
+  _handleOpenURL(event) {
+    if (this.props.topScreen) {
+      this.findLink(event.url)
+    }
+  }
+
+  findLink(url) {
+    let { getBindings, navigate } = this.context
+    const { getApp } = this.context
+    let app = getApp()
+    const deeplinks = Object.keys(app.components).flatMap(key => {
+      const elements = app.components[key].objects.filter(element => element.libraryName === "adalo-deep-links")
+      let params = {}
+      Object.keys(app.components[key].dataBindings).forEach(bindingKey => {
+        const binding = app.components[key].dataBindings[bindingKey]
+        if (binding.source?.source?.selector.type === "ROUTE_PARAM_SELECTOR") {
+          params[`${binding.source?.source?.datasourceId}.${binding.source?.source.tableId}`] = 0
+        }
+      }) 
+      return elements.map(element => ({
+        ...element,
+        pieces: element.attributes.urlPath.split('/'),
+        screenId: key,
+        params
+      }))  
+    })
+    // "https://adalo.com/organizations/1/locations/1"
+    const path = url.replace(`${this.props.uriScheme}://${this.props.urlHostname}/`, '')
+    const pathPieces = path.split('/')
+    const [link, params] = recusiveLinkSearch(pathPieces, 0, deeplinks, {})
+    if (link) {
+      navigate({ 
+        target: link.screenId, 
+        transition: "TRANSITION_NONE",
+        params: params
+      })
+    }
+  }
+
+  componentDidMount() {
+    Linking.getInitialURL().then((url) => {
+      if (global.appLoaded === undefined && this.props.topScreen) {
+        global.appLoaded = true
+        if (url) {
+          this.findLink(url)
+        }
+      }
+    }).catch(err => console.error('An error occurred', err));
+
+    Linking.addEventListener('url', this._handleOpenURL);
+  }
+
+  componentWillUnmount() {
+    Linking.removeEventListener('url', this._handleOpenURL);
+  }
+
+  render() {
+    if (this.props.editor) {
+      return (
+        <Text>{this.props.uriScheme}://{this.props.urlHostname}/{this.props.urlPath}</Text>
+      )
+    } else { 
+      return <View />
+    }
+  }
+}
+
+const mapStateToProps = (state) => ({ 
+	state,
+})
+
+const mapDispatchToProps  = (dispatch) => ({ 
+	dispatch,
+})
+
+const ConnectedDeepLinking = connect(mapStateToProps, mapDispatchToProps)(DeepLinking)
 
 const DeepLink = (props) => {
+  const context = useContext(MyContext)
   const incomingUrlLink = useRef('')
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const [url, setUrl] = useState("");
+  const [app, setApp] = useState({});
   const { color, onInitialUrl, onEventUrl } = props;
   if (global.firstPing === undefined) {
     global.firstPing = true
   }
+
   useEffect(() => {
+    
+  // setApp(context.getApp())
+  // console.log(context)
     const linkingEventListener = (event) => {
       incomingUrlLink.current = event.url;
       setUrl(`addEventListener:${event.url}`);
@@ -26,6 +157,7 @@ const DeepLink = (props) => {
             onInitialUrl(value, '');
           }
         }
+        
         setUrl(`initialUrl${value}`);
         console.log(`initialUrl${value}`);
       });
@@ -74,10 +206,12 @@ const DeepLink = (props) => {
 			}
     };
   }, []);
+  console.log(context)
   return (
     <View style={styles.wrapper}>
       <Text style={{ color }}>{url}</Text>
       <Text style={{ color }}>{appStateVisible}</Text>
+      <Text>{context.getApp()}</Text>
     </View>
   );
 };
@@ -90,4 +224,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DeepLink;
+export default DeepLinker;
