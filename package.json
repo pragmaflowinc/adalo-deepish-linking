@@ -1,7 +1,7 @@
 {
   "name": "adalo-deep-links",
   "description": "Deep linking",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "main": "index.js",
   "license": "ISC",
   "author": "Steven McKeown",
