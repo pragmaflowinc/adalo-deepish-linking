@@ -33,7 +33,7 @@ function recusiveLinkSearch(parts, depth, links, params) {
   } else if (shallowCopyParts.length > 0) {
     return recusiveLinkSearch(shallowCopyParts, depth + 1, matches, newParams)
   }
-  const exactMatch = matches.find(match => match.pieces.length === parts.length)
+  const exactMatch = matches.find(match => match.pieces.length === parts.length + depth)
   if (exactMatch) {
     return [exactMatch, newParams]
   }
@@ -49,6 +49,7 @@ class DeepLinking extends Component {
     super(props)
 
     this._handleOpenURL = this._handleOpenURL.bind(this);
+    this._handleInitialUrl = this._handleInitialUrl.bind(this);
     this.findLink = this.findLink.bind(this);
   }
 
@@ -58,7 +59,17 @@ class DeepLinking extends Component {
     }
   }
 
+  _handleInitialUrl(url) {
+    if (global.appLoaded === undefined && this.props.topScreen) {
+      global.appLoaded = true
+      if (url) {
+        this.findLink(url)
+      }
+    }
+  }
+
   findLink(url) {
+    debugger
     let { getBindings, navigate } = this.context
     const { getApp } = this.context
     let app = getApp()
@@ -91,15 +102,7 @@ class DeepLinking extends Component {
   }
 
   componentDidMount() {
-    Linking.getInitialURL().then((url) => {
-      if (global.appLoaded === undefined && this.props.topScreen) {
-        global.appLoaded = true
-        if (url) {
-          this.findLink(url)
-        }
-      }
-    }).catch(err => console.error('An error occurred', err));
-
+    Linking.getInitialURL().then((url) => this._handleInitialUrl(url)).catch(err => console.error('An error occurred', err));
     Linking.addEventListener('url', this._handleOpenURL);
   }
 
