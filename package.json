@@ -1,6 +1,6 @@
 {
-  "name": "your-company-name-deep-links",
-  "description": "Deep linking in Adalo",
+  "name": "adalo-deep-links",
+  "description": "Deep linking",
   "version": "1.0.0",
   "main": "index.js",
   "license": "ISC",
@@ -12,7 +12,7 @@
   },
   "adalo": {
     "logo": "./logo.png",
-    "displayName": "Pragmaflow Deep Links",
+    "displayName": "Deep Links",
     "components": [
       {
         "name": "DeepLink",
@@ -28,5 +28,12 @@
     "react-art": "^16.6.0",
     "react-dom": "^16.9.0",
     "react-native-web": "^0.9.5"
+  },
+  "dependencies": {
+    "@protonapp/proton-runner": "^0.2.33",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-persist": "^6.0.0",
+    "uri-scheme": "^1.0.105"
   }
 }
